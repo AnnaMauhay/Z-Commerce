@@ -6,9 +6,7 @@ import com.zalando.ecommerce.exception.DuplicateUserException;
 import com.zalando.ecommerce.exception.UserNotFoundException;
 import com.zalando.ecommerce.model.User;
 import com.zalando.ecommerce.repository.UserRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,14 +18,8 @@ import java.util.Optional;
 
 @Service @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    UserRepository userRepository;
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User getUserByEmail(String email) throws UserNotFoundException {
         Optional<User> optionalUser = userRepository.getUserByEmail(email);
