@@ -14,6 +14,7 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
     private String SECRET_KEY="ZALANDO_ECOMMERCE_$3C13etK3Y";
+    private final String ISSUER="LIZA_BY_STARTSTEPS_IN_COLLAB_WITH_ZALANDO";
     public String extractUserName(String token){
         return extractClaim(token, Claims::getSubject);
     }
@@ -35,9 +36,9 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(String email){
         Map<String, Object> claims = new HashMap<>(); // TODO: This allows for customized claims if ever.
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, email);
     }
 
     private String createToken(Map<String, Object> claims, String username) {
@@ -46,6 +47,7 @@ public class JwtUtil {
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*10)) //valid for 10hrs
+                .setIssuer(ISSUER)
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
