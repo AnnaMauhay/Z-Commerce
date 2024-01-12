@@ -40,3 +40,4 @@ build/
 .ecommerce/data/
 SampleDataConfiguration.java
 SampleProductLoader.java
+SampleCartLoader.java
