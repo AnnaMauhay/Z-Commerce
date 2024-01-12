@@ -40,9 +40,6 @@ public class UserController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@RequestBody UserLoginRequest loginRequest){
-        if(!userService.isEmailRegistered(loginRequest.getEmail())) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("The provided email address is not yet registered.");
-        }
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginRequest.getEmail(),
@@ -52,8 +49,7 @@ public class UserController {
 
             return ResponseEntity.ok(new AuthenticationResponse(jwt));
         }catch (AuthenticationException e){
-            System.out.println("AuthenticationException: "+e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("AuthenticationException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username and/or password.");
         }
     }
 }
