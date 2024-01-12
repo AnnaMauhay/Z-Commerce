@@ -37,3 +37,6 @@ build/
 *.class
 *.jar
 *.sql
+.ecommerce/data/
+SampleDataConfiguration.java
+SampleProductLoader.java
