@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +30,7 @@ public class UserController {
 
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = {"application/json", "text/xml"})
-    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationRequest registrationRequest){
+    public ResponseEntity<?> registerUser(@Validated @RequestBody UserRegistrationRequest registrationRequest){
         try{
             UserRegistrationResponse response = userService.registerUser(registrationRequest);
             return ResponseEntity.ok(response);
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest loginRequest){
+    public ResponseEntity<?> login(@Validated @RequestBody UserLoginRequest loginRequest){
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginRequest.getEmail(),
