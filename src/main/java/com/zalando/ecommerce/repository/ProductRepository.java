@@ -7,9 +7,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    List<Product> getAllBySeller(User user);
-    List<Product> getProductsByProductNameContainingIgnoreCase(String productName);
-    Page<Product> getProductsByProductNameContainingIgnoreCase(String productName, Pageable pageable);
+    /*
+     *  CUSTOMER-Role-related Queries
+     */
+    Optional<Product> findProductsByProductIdAndArchivedIsFalse(Integer productId);
+    Page<Product> findAllByArchivedIsFalse(Pageable pageable);
+    List<Product> getProductsByArchivedIsFalseAndProductNameContainingIgnoreCase(String productName);
+    Page<Product> getProductsByArchivedIsFalseAndProductNameContainingIgnoreCase(String productName, Pageable pageable);
+
+    /*
+     *  SELLER-Role-related Queries
+     */
+    Optional<Product> getProductByProductNameContainingIgnoreCaseAndSeller(String productName, User user);
+    Optional<Product> getProductByProductIdAndSellerAndArchived(Integer productId, User user, Boolean archived);
+    List<Product> getAllBySellerAndArchivedIsFalse(User user);
 }
