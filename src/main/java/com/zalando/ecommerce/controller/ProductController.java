@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -53,6 +54,7 @@ public class ProductController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('SELLER')")
     public ResponseEntity<?> addNewProduct(@Validated @RequestBody ProductRequest productRequest,
                                            @AuthenticationPrincipal UserDetails principal){
         User user;
@@ -73,6 +75,7 @@ public class ProductController {
     }
 
     @PutMapping("/{product-id}")
+    @PreAuthorize("hasAnyRole('SELLER')")
     public ResponseEntity<?> updateProduct(@Validated @RequestBody ProductRequest productRequest,
                                            @AuthenticationPrincipal UserDetails principal,
                                            @PathVariable("product-id") int productId){
@@ -90,6 +93,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{product-id}")
+    @PreAuthorize("hasAnyRole('SELLER')")
     public ResponseEntity<?> deleteProduct(@AuthenticationPrincipal UserDetails principal,
                                            @PathVariable("product-id") int productId){
         User user;
