@@ -1,5 +1,6 @@
 package com.zalando.ecommerce.exception;
 
+import com.zalando.ecommerce.model.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
         String message = ex.getMessage() + ": You do not have the right permissions for this resource/endpoint.";
         logger.error(message);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(message);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(HttpStatus.FORBIDDEN, message));
     }
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<?> handleRuntimeException(RuntimeException exception) {
