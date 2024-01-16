@@ -32,4 +32,8 @@ public class Cart {
         this.product = product;
         this.customer = customer;
     }
+
+    public void addQty(int qty){
+        this.qty+=qty;
+    }
 }

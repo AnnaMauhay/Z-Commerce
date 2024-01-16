@@ -1,6 +1,7 @@
 package com.zalando.ecommerce.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.zalando.ecommerce.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,5 +35,14 @@ public class Product {
         this.price = price;
         this.stockQty = stockQty;
         this.seller = seller;
+    }
+
+    public boolean reduceQty(int quantity) {
+        if (this.stockQty < quantity){
+            return false;
+        }else{
+            this.stockQty-=quantity;
+            return true;
+        }
     }
 }
