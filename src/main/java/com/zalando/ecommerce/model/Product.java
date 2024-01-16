@@ -21,7 +21,7 @@ public class Product {
     private int stockQty;
 
     @Column(name = "is_archived")
-    private boolean isArchived;
+    private boolean archived;
 
     @JsonIgnore
     @ManyToOne
