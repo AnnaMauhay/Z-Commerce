@@ -67,7 +67,6 @@ public class ProductController {
             product = productService.addProduct(productRequest, user);
         } catch (UserNotFoundException | DuplicateProductException e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
         }
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{product-id}")
