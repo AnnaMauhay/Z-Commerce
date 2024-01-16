@@ -4,6 +4,7 @@ import com.zalando.ecommerce.dto.ProductRequest;
 import com.zalando.ecommerce.exception.DuplicateProductException;
 import com.zalando.ecommerce.exception.InsufficientStockException;
 import com.zalando.ecommerce.exception.ProductNotFoundException;
+import com.zalando.ecommerce.exception.StockLimitExceededException;
 import com.zalando.ecommerce.model.Product;
 import com.zalando.ecommerce.model.User;
 import com.zalando.ecommerce.repository.ProductRepository;
@@ -73,5 +74,11 @@ public class ProductService {
         if (product.reduceQty(quantity)){
             productRepository.save(product);
         }else throw new InsufficientStockException("There is not enough stock for the requested quantity.");
+    }
+
+    public void increaseQty(int quantity, Product product) throws StockLimitExceededException {
+        if(product.increaseQty(quantity)){
+            productRepository.save(product);
+        }else throw new StockLimitExceededException("Stock quantity must not be more than 10,000.");
     }
 }

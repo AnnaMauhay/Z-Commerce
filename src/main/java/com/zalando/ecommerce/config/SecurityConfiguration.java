@@ -49,13 +49,25 @@ public class SecurityConfiguration {
                                     .permitAll();
                             auth
                                     .requestMatchers(HttpMethod.POST, "/*/product")
-                                    .hasAuthority(UserPermissions.WRITE_PRODUCT.name())
+                                    .hasRole(Role.SELLER.name())
 
                                     .requestMatchers(HttpMethod.PUT, "/*/product/*")
-                                    .hasAuthority(UserPermissions.WRITE_PRODUCT.name())
+                                    .hasRole(Role.SELLER.name())
 
                                     .requestMatchers(HttpMethod.DELETE, "/*/product/*")
-                                    .hasAuthority(UserPermissions.WRITE_PRODUCT.name());
+                                    .hasRole(Role.SELLER.name());
+                            auth
+                                    .requestMatchers(HttpMethod.GET, "/*/cart")
+                                    .hasRole(Role.CUSTOMER.name())
+
+                                    .requestMatchers(HttpMethod.POST, "/*/cart/add")
+                                    .hasRole(Role.CUSTOMER.name())
+
+                                    .requestMatchers(HttpMethod.PUT, "/*/cart/reduce")
+                                    .hasRole(Role.CUSTOMER.name())
+
+                                    .requestMatchers(HttpMethod.DELETE, "/*/cart/*")
+                                    .hasRole(Role.CUSTOMER.name());;
 
                             auth
                                     .anyRequest()

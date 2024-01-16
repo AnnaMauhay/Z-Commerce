@@ -36,4 +36,13 @@ public class Cart {
     public void addQty(int qty){
         this.qty+=qty;
     }
+
+    public boolean reduceQty(int qty) {
+        if (this.qty < qty){
+            return false;
+        }else{
+            this.qty-=qty;
+            return true;
+        }
+    }
 }

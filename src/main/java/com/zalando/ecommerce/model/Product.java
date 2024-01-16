@@ -9,6 +9,8 @@ import lombok.*;
 @Entity
 @Table(name = "product")
 public class Product {
+    private final int MAX_QUANTITY = 10_000;
+
     @Id @Column(name = "product_id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int productId;
@@ -44,5 +46,12 @@ public class Product {
             this.stockQty-=quantity;
             return true;
         }
+    }
+
+    public boolean increaseQty(int quantity){
+        if (this.stockQty+quantity > MAX_QUANTITY) return false;
+
+        this.stockQty+=quantity;
+        return true;
     }
 }
