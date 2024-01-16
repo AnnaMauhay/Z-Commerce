@@ -2,6 +2,7 @@ package com.zalando.ecommerce.service;
 
 import com.zalando.ecommerce.dto.ProductRequest;
 import com.zalando.ecommerce.exception.DuplicateProductException;
+import com.zalando.ecommerce.exception.InsufficientStockException;
 import com.zalando.ecommerce.exception.ProductNotFoundException;
 import com.zalando.ecommerce.model.Product;
 import com.zalando.ecommerce.model.User;
@@ -66,5 +67,11 @@ public class ProductService {
             product.setArchived(true);
             return productRepository.save(product);
         }else throw new ProductNotFoundException("No active product matched the given ID for this seller.");
+    }
+
+    public void reduceQuantity(int quantity, Product product) throws InsufficientStockException {
+        if (product.reduceQty(quantity)){
+            productRepository.save(product);
+        }else throw new InsufficientStockException("There is not enough stock for the requested quantity.");
     }
 }
