@@ -21,14 +21,21 @@ public class Order {
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    private User customerId;
+    private User customer;
 
     @Column(name = "total_price")
     private float totalPrice;
 
-    @Column @Enumerated
+    @Column @Enumerated(value = EnumType.ORDINAL)
     private OrderStatus status;
 
     @Column(name = "is_archived")
     private boolean archived;
+
+    public Order(User customer, float totalPrice, OrderStatus status) {
+        this.date = LocalDateTime.now();
+        this.customer = customer;
+        this.totalPrice = totalPrice;
+        this.status = status;
+    }
 }

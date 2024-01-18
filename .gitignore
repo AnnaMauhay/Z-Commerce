@@ -41,3 +41,4 @@ build/
 SampleDataConfiguration.java
 SampleProductLoader.java
 SampleCartLoader.java
+SampleOrderLoader.java
