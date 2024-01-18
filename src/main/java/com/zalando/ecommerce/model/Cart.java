@@ -5,15 +5,16 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity @Table(name = "cart")
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class Cart {
     @JsonIgnore
     @EmbeddedId
     private CartKey id;
 
-    @Column
-    private int qty;
+    @Column(name="qty")
+    private int quantity;
 
     @ManyToOne
     @MapsId("productId")
@@ -26,14 +27,23 @@ public class Cart {
     @JoinColumn(name = "customer_id")
     private User customer;
 
-    public Cart(int qty, Product product, User customer) {
+    public Cart(int quantity, Product product, User customer) {
         this.id=new CartKey(product.getProductId(), customer.getUserId());
-        this.qty = qty;
+        this.quantity = quantity;
         this.product = product;
         this.customer = customer;
     }
 
-    public void addQty(int qty){
-        this.qty+=qty;
+    public void addQuantity(int quantity){
+        this.quantity +=quantity;
+    }
+
+    public boolean reduceQty(int quantity) {
+        if (this.quantity < quantity){
+            return false;
+        }else{
+            this.quantity -= quantity;
+            return true;
+        }
     }
 }
