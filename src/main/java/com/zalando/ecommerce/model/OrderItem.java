@@ -25,7 +25,7 @@ public class OrderItem {
     @ManyToOne
     @MapsId("orderId")
     @JoinColumn(name = "order_id")
-    private Order order;
+    private Order purchaseOrder;
 
     public OrderItem(int quantity, Product product, Order order) {
         this.id=new OrderItemKey(product.getProductId(), order.getOrderId());

@@ -13,7 +13,7 @@ public class Cart {
     @EmbeddedId
     private CartKey id;
 
-    @Column(name="quantity")
+    @Column
     private int quantity;
 
     @ManyToOne
@@ -38,10 +38,10 @@ public class Cart {
         this.quantity +=quantity;
     }
 
-    public boolean reduceQty(int quantity) {
-        if (this.quantity < quantity){
+    public boolean reduceQuantity(int quantity) {
+        if (this.quantity < quantity) {
             return false;
-        }else{
+        } else {
             this.quantity -= quantity;
             return true;
         }
