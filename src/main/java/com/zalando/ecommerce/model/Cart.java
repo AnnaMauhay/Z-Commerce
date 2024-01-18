@@ -13,7 +13,7 @@ public class Cart {
     @EmbeddedId
     private CartKey id;
 
-    @Column(name="qty")
+    @Column(name="quantity")
     private int quantity;
 
     @ManyToOne
