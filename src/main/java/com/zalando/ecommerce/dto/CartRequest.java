@@ -1,5 +1,6 @@
 package com.zalando.ecommerce.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,5 +17,6 @@ public class CartRequest {
     private int productId;
     @NotEmpty (message="Quantity cannot be empty.")
     @NotNull(message="Quantity cannot be null.")
+    @Min(value = 1, message = "Quantity cannot be less than 1.")
     private int quantity;
 }
