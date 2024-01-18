@@ -71,13 +71,13 @@ public class ProductService {
     }
 
     public void reduceQuantity(int quantity, Product product) throws InsufficientStockException {
-        if (product.reduceQty(quantity)){
+        if (product.reduceQuantity(quantity)){
             productRepository.save(product);
         }else throw new InsufficientStockException("There is not enough stock for the requested quantity.");
     }
 
-    public void increaseQty(int quantity, Product product) throws StockLimitExceededException {
-        if(product.increaseQty(quantity)){
+    public void increaseQuantity(int quantity, Product product) throws StockLimitExceededException {
+        if(product.increaseQuantity(quantity)){
             productRepository.save(product);
         }else throw new StockLimitExceededException("Stock quantity must not be more than 10,000.");
     }

@@ -57,16 +57,16 @@ public class SecurityConfiguration {
                                     .requestMatchers(HttpMethod.DELETE, "/*/product/*")
                                     .hasRole(Role.SELLER.name());
                             auth
-                                    .requestMatchers(HttpMethod.GET, "/*/cart")
+                                    .requestMatchers(HttpMethod.GET, "/*/carts")
                                     .hasRole(Role.CUSTOMER.name())
 
-                                    .requestMatchers(HttpMethod.POST, "/*/cart/add")
+                                    .requestMatchers(HttpMethod.POST, "/*/carts")
                                     .hasRole(Role.CUSTOMER.name())
 
-                                    .requestMatchers(HttpMethod.PUT, "/*/cart/reduce")
+                                    .requestMatchers(HttpMethod.PUT, "/*/carts")
                                     .hasRole(Role.CUSTOMER.name())
 
-                                    .requestMatchers(HttpMethod.DELETE, "/*/cart/*")
+                                    .requestMatchers(HttpMethod.DELETE, "/*/carts/*")
                                     .hasRole(Role.CUSTOMER.name());;
 
                             auth

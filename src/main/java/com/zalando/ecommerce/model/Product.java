@@ -1,14 +1,16 @@
 package com.zalando.ecommerce.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zalando.ecommerce.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Setter @Getter @NoArgsConstructor @AllArgsConstructor
+@Setter @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "product")
 public class Product {
+    @JsonIgnore
     private final int MAX_QUANTITY = 10_000;
 
     @Id @Column(name = "product_id")
@@ -39,7 +41,7 @@ public class Product {
         this.seller = seller;
     }
 
-    public boolean reduceQty(int quantity) {
+    public boolean reduceQuantity(int quantity) {
         if (this.stockQty < quantity){
             return false;
         }else{
@@ -48,7 +50,7 @@ public class Product {
         }
     }
 
-    public boolean increaseQty(int quantity){
+    public boolean increaseQuantity(int quantity){
         if (this.stockQty+quantity > MAX_QUANTITY) return false;
 
         this.stockQty+=quantity;

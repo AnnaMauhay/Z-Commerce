@@ -1,10 +1,7 @@
 package com.zalando.ecommerce.controller;
 
 import com.zalando.ecommerce.dto.CartRequest;
-import com.zalando.ecommerce.exception.InsufficientStockException;
-import com.zalando.ecommerce.exception.ProductNotFoundException;
-import com.zalando.ecommerce.exception.StockLimitExceededException;
-import com.zalando.ecommerce.exception.UserNotFoundException;
+import com.zalando.ecommerce.exception.*;
 import com.zalando.ecommerce.model.ErrorResponse;
 import com.zalando.ecommerce.model.User;
 import com.zalando.ecommerce.service.CartService;
@@ -19,7 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/cart")
+@RequestMapping("/carts")
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
@@ -36,26 +33,27 @@ public class CartController {
         }
     }
 
-    @PostMapping("/add")
+    @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> addToCart(@AuthenticationPrincipal UserDetails principal,
                                        @RequestBody CartRequest cartRequest){
         try {
             User user = userService.getUserByEmail(principal.getUsername());
             return ResponseEntity.ok(cartService.addProductToCart(cartRequest, user));
-        } catch (UserNotFoundException | InsufficientStockException | ProductNotFoundException e) {
+        } catch (UserNotFoundException | InsufficientStockException | ProductNotFoundException |
+                 DuplicateProductException e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                     .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
         }
     }
 
-    @PutMapping("/reduce")
+    @PutMapping
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> reduceProductInCart(@AuthenticationPrincipal UserDetails principal,
+    public ResponseEntity<?> updateProductInCart(@AuthenticationPrincipal UserDetails principal,
                                        @RequestBody CartRequest cartRequest){
         try {
             User user = userService.getUserByEmail(principal.getUsername());
-            return ResponseEntity.ok(cartService.reduceProductInCart(cartRequest, user));
+            return ResponseEntity.ok(cartService.updateProductInCart(cartRequest, user));
         } catch (UserNotFoundException | StockLimitExceededException | ProductNotFoundException |
                  InsufficientStockException e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
