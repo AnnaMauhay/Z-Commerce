@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity @Table(name = "purchase_order")
 @Getter @Setter
@@ -32,10 +33,16 @@ public class Order {
     @Column(name = "is_archived")
     private boolean archived;
 
-    public Order(User customer, float totalPrice, OrderStatus status) {
+    @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL)
+    private Set<OrderItem> orderItems;
+
+    public Order(User customer, Set<CartItem> cartItemSet, OrderStatus status) {
         this.date = LocalDateTime.now();
         this.customer = customer;
-        this.totalPrice = totalPrice;
+        this.totalPrice = cartItemSet.stream()
+                .reduce(0f,
+                        (subTotal, cartItem) -> subTotal + cartItem.getQuantity() * cartItem.getProduct().getPrice(),
+                        Float::sum);
         this.status = status;
     }
 }

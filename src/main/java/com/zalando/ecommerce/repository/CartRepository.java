@@ -1,6 +1,6 @@
 package com.zalando.ecommerce.repository;
 
-import com.zalando.ecommerce.model.Cart;
+import com.zalando.ecommerce.model.CartItem;
 import com.zalando.ecommerce.model.Product;
 import com.zalando.ecommerce.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CartRepository extends JpaRepository<Cart, Integer> {
-    Optional<Cart> getCartByCustomerAndProduct(User user, Product product);
-    List<Cart> getCartsByCustomer(User user);
+public interface CartRepository extends JpaRepository<CartItem, Integer> {
+    Optional<CartItem> getCartByCustomerAndProduct(User user, Product product);
+    List<CartItem> getCartsByCustomer(User user);
 }

@@ -8,12 +8,12 @@ import lombok.*;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Cart {
+public class CartItem {
     @JsonIgnore
     @EmbeddedId
     private CartKey id;
 
-    @Column(name="quantity")
+    @Column
     private int quantity;
 
     @ManyToOne
@@ -27,23 +27,10 @@ public class Cart {
     @JoinColumn(name = "customer_id")
     private User customer;
 
-    public Cart(int quantity, Product product, User customer) {
+    public CartItem(int quantity, Product product, User customer) {
         this.id=new CartKey(product.getProductId(), customer.getUserId());
         this.quantity = quantity;
         this.product = product;
         this.customer = customer;
-    }
-
-    public void addQuantity(int quantity){
-        this.quantity +=quantity;
-    }
-
-    public boolean reduceQty(int quantity) {
-        if (this.quantity < quantity){
-            return false;
-        }else{
-            this.quantity -= quantity;
-            return true;
-        }
     }
 }

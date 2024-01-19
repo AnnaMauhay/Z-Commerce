@@ -1,10 +1,9 @@
 package com.zalando.ecommerce.repository;
 
-import com.zalando.ecommerce.model.Cart;
+import com.zalando.ecommerce.model.CartItem;
 import com.zalando.ecommerce.model.Product;
 import com.zalando.ecommerce.model.Role;
 import com.zalando.ecommerce.model.User;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class CartRepositoryTest {
+class CartItemRepositoryTest {
     @Autowired
     ProductRepository productRepository;
     @Autowired
@@ -44,18 +43,18 @@ class CartRepositoryTest {
     @Test
     void testSaveCartWithExistingUserAndProduct_cartRepoCountIncreases(){
         long previousCount = cartRepository.count();
-        cartRepository.save(new Cart(1,productRepository.getReferenceById(product1.getProductId()),user));
-        cartRepository.save(new Cart(2,productRepository.getReferenceById(product2.getProductId()),user));
+        cartRepository.save(new CartItem(1,productRepository.getReferenceById(product1.getProductId()),user));
+        cartRepository.save(new CartItem(2,productRepository.getReferenceById(product2.getProductId()),user));
         assertEquals(previousCount+2,cartRepository.count());
     }
 
     @Test
     void testSaveSameProductAndUser_cartRepoCountNotAffected(){
         long previousCount = cartRepository.count();
-        cartRepository.save(new Cart(1,productRepository.getReferenceById(product1.getProductId()),user));
+        cartRepository.save(new CartItem(1,productRepository.getReferenceById(product1.getProductId()),user));
         assertEquals(previousCount+1,cartRepository.count());
 
-        cartRepository.save(new Cart(1,productRepository.getReferenceById(product1.getProductId()),user));
+        cartRepository.save(new CartItem(1,productRepository.getReferenceById(product1.getProductId()),user));
         assertEquals(previousCount+1,cartRepository.count());
     }
 }

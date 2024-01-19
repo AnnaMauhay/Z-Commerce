@@ -56,7 +56,7 @@ public class ProductService {
             product.setProductName(productRequest.getProductName());
             product.setDescription(productRequest.getDescription());
             product.setPrice(productRequest.getPrice());
-            product.setStockQty(productRequest.getStockQty());
+            product.setStockQuantity(productRequest.getStockQty());
             return productRepository.save(product);
         }else throw new ProductNotFoundException("No active product matched the given ID for this seller.");
     }
@@ -73,7 +73,7 @@ public class ProductService {
     public void reduceQuantity(int quantity, Product product) throws InsufficientStockException {
         if (product.reduceQuantity(quantity)){
             productRepository.save(product);
-        }else throw new InsufficientStockException("There is not enough stock for the requested quantity.");
+        }else throw new InsufficientStockException("There is not enough stock for the requested quantity.", product);
     }
 
     public void increaseQuantity(int quantity, Product product) throws StockLimitExceededException {

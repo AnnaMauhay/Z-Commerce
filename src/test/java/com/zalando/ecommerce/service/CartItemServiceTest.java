@@ -4,7 +4,7 @@ import com.zalando.ecommerce.dto.CartRequest;
 import com.zalando.ecommerce.dto.CartResponse;
 import com.zalando.ecommerce.exception.DuplicateProductException;
 import com.zalando.ecommerce.exception.ProductNotFoundException;
-import com.zalando.ecommerce.model.Cart;
+import com.zalando.ecommerce.model.CartItem;
 import com.zalando.ecommerce.model.Product;
 import com.zalando.ecommerce.model.Role;
 import com.zalando.ecommerce.model.User;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CartServiceTest {
+class CartItemServiceTest {
     @Mock
     private CartRepository cartRepository;
     @Mock
@@ -38,15 +38,14 @@ class CartServiceTest {
     private CartService cartService;
 
     @Captor
-    ArgumentCaptor<Cart> cartCaptor;
+    ArgumentCaptor<CartItem> cartCaptor;
 
-    private Cart cart;
+    private CartItem cartItem;
     private CartRequest cartRequest;
     private User user;
     private int quantity;
     private float price;
     private int productId;
-    @InjectMocks
     private Product product;
 
     @BeforeEach
@@ -60,23 +59,22 @@ class CartServiceTest {
 
         product = new Product(productId, "Sample Product", "Product Description",
                 price, 50, false, user);
-        cart = new Cart(quantity, product, user);
+        cartItem = new CartItem(quantity, product, user);
     }
 
-    //    @SneakyThrows
     @SneakyThrows
     @Test
     void givenNewProduct_whenAddProductToCart_thenReturnCartResponse() {
         cartRequest = new CartRequest(productId, quantity);
         given(productService.getProductById(productId)).willReturn(product);
-        given(cartRepository.getCartsByCustomer(user)).willReturn(List.of(cart));
+        given(cartRepository.getCartsByCustomer(user)).willReturn(List.of(cartItem));
 
         CartResponse cartResponse;
         cartResponse = cartService.addProductToCart(cartRequest, user);
 
         System.out.println(cartResponse);
         assertThat(cartResponse).isNotNull();
-        assertThat(cartResponse.getCartList()).isNotEmpty();
+        assertThat(cartResponse.getCart()).isNotEmpty();
         assertEquals(quantity * price, cartResponse.getTotalPrice());
     }
 
@@ -85,7 +83,7 @@ class CartServiceTest {
     void givenExistingProduct_whenAddProductToCart_throwDuplicateProductException() {
         cartRequest = new CartRequest(productId, quantity);
         given(productService.getProductById(productId)).willReturn(product);
-        given(cartRepository.getCartByCustomerAndProduct(user, product)).willReturn(Optional.of(cart));
+        given(cartRepository.getCartByCustomerAndProduct(user, product)).willReturn(Optional.of(cartItem));
 
         assertThrows(DuplicateProductException.class, () ->
                 cartService.addProductToCart(cartRequest, user));
@@ -95,14 +93,14 @@ class CartServiceTest {
     @Test
     void givenProductInCart_whenRemoveProductFromCart_thenCartIsEmpty() {
         given(productService.getProductById(productId)).willReturn(product);
-        given(cartRepository.getCartByCustomerAndProduct(user, product)).willReturn(Optional.of(cart));
+        given(cartRepository.getCartByCustomerAndProduct(user, product)).willReturn(Optional.of(cartItem));
 
         CartResponse cartResponse;
-        cartResponse = cartService.removeProductFromCart(productId, user);
+        cartResponse = cartService.releaseProductFromCart(productId, user);
 
         System.out.println(cartResponse);
         assertThat(cartResponse).isNotNull();
-        assertThat(cartResponse.getCartList()).isEmpty();
+        assertThat(cartResponse.getCart()).isEmpty();
         assertEquals(0f, cartResponse.getTotalPrice());
     }
 
@@ -113,7 +111,7 @@ class CartServiceTest {
         given(cartRepository.getCartByCustomerAndProduct(user, product)).willReturn(Optional.empty());
 
         assertThrows(ProductNotFoundException.class, () ->
-                cartService.removeProductFromCart(productId, user));
+                cartService.releaseProductFromCart(productId, user));
     }
 
     @SneakyThrows
@@ -121,13 +119,13 @@ class CartServiceTest {
     void testUpdateProductInCartToHigherQuantity_thenNewTotalPriceIncreases() {
         cartRequest = new CartRequest(productId, quantity + 10);
         given(productService.getProductById(productId)).willReturn(product);
-        given(cartRepository.getCartByCustomerAndProduct(user, product)).willReturn(Optional.of(cart));
+        given(cartRepository.getCartByCustomerAndProduct(user, product)).willReturn(Optional.of(cartItem));
 
         cartService.updateProductInCart(cartRequest, user);
 
         verify(cartRepository).save(cartCaptor.capture());
-        Cart cartCaptorValue = cartCaptor.getValue();
-        assertEquals(quantity+10, cartCaptorValue.getQuantity());
+        CartItem cartItemCaptorValue = cartCaptor.getValue();
+        assertEquals(quantity+10, cartItemCaptorValue.getQuantity());
     }
 
     @SneakyThrows
@@ -135,12 +133,12 @@ class CartServiceTest {
     void testUpdateProductInCartToLowerQuantity_thenNewTotalPriceDecreases() {
         cartRequest = new CartRequest(productId, quantity - 5);
         given(productService.getProductById(productId)).willReturn(product);
-        given(cartRepository.getCartByCustomerAndProduct(user, product)).willReturn(Optional.of(cart));
+        given(cartRepository.getCartByCustomerAndProduct(user, product)).willReturn(Optional.of(cartItem));
 
         cartService.updateProductInCart(cartRequest, user);
 
         verify(cartRepository).save(cartCaptor.capture());
-        Cart cartCaptorValue = cartCaptor.getValue();
-        assertEquals(quantity-5, cartCaptorValue.getQuantity());
+        CartItem cartItemCaptorValue = cartCaptor.getValue();
+        assertEquals(quantity-5, cartItemCaptorValue.getQuantity());
     }
 }
