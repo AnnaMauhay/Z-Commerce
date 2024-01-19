@@ -1,6 +1,6 @@
 package com.zalando.ecommerce.dto;
 
-import com.zalando.ecommerce.model.Cart;
+import com.zalando.ecommerce.model.CartItem;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,13 +11,13 @@ import java.util.List;
 @ToString
 public class CartResponse {
     private String message;
-    private List<Cart> cartList;
+    private List<CartItem> cart;
     private Float totalPrice;
 
-    public CartResponse(String message, List<Cart> cartList) {
+    public CartResponse(String message, List<CartItem> cart) {
         this.message=message;
-        this.cartList = cartList;
-        this.totalPrice = cartList.stream()
-                .reduce(0f,(subTotal, cart) -> subTotal+cart.getQuantity()*cart.getProduct().getPrice(), Float::sum);
+        this.cart = cart;
+        this.totalPrice = cart.stream()
+                .reduce(0f,(subTotal, cartItem) -> subTotal+cartItem.getQuantity()*cartItem.getProduct().getPrice(), Float::sum);
     }
 }

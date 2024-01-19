@@ -36,10 +36,10 @@ public class Order {
     @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL)
     private Set<OrderItem> orderItems;
 
-    public Order(User customer, Set<Cart> cartSet, OrderStatus status) {
+    public Order(User customer, Set<CartItem> cartItemSet, OrderStatus status) {
         this.date = LocalDateTime.now();
         this.customer = customer;
-        this.totalPrice = cartSet.stream()
+        this.totalPrice = cartItemSet.stream()
                 .reduce(0f,
                         (subTotal, cartItem) -> subTotal + cartItem.getQuantity() * cartItem.getProduct().getPrice(),
                         Float::sum);

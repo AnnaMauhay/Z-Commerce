@@ -11,19 +11,24 @@ import lombok.*;
 @Table(name = "product")
 public class Product {
     @JsonIgnore
+    @Transient
     private final int MAX_QUANTITY = 10_000;
 
     @Id @Column(name = "product_id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int productId;
+
     @Column(name = "product_name")
     private String productName;
+
     @Column
     private String description;
+
     @Column
     private Float price;
-    @Column
-    private int stockQty;
+
+    @Column(name = "stock_quantity")
+    private int stockQuantity;
 
     @Column(name = "is_archived")
     private boolean archived;
@@ -33,27 +38,27 @@ public class Product {
     @JoinColumn(name = "seller_id")
     private User seller;
 
-    public Product(String productName, String description, Float price, int stockQty, User seller) {
+    public Product(String productName, String description, Float price, int stockQuantity, User seller) {
         this.productName = productName;
         this.description = description;
         this.price = price;
-        this.stockQty = stockQty;
+        this.stockQuantity = stockQuantity;
         this.seller = seller;
     }
 
     public boolean reduceQuantity(int quantity) {
-        if (this.stockQty < quantity){
+        if (this.stockQuantity < quantity){
             return false;
         }else{
-            this.stockQty-=quantity;
+            this.stockQuantity -= quantity;
             return true;
         }
     }
 
     public boolean increaseQuantity(int quantity){
-        if (this.stockQty+quantity > MAX_QUANTITY) return false;
+        if (this.stockQuantity + quantity > MAX_QUANTITY) return false;
 
-        this.stockQty+=quantity;
+        this.stockQuantity += quantity;
         return true;
     }
 }

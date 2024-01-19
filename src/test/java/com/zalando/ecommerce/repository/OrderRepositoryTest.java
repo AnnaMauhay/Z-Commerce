@@ -28,17 +28,24 @@ class OrderRepositoryTest {
     UserRepository userRepository;
     private User dummyCustomer;
     private Order order;
+    private float unitPrice;
+    private int quantity;
     private Product product;
     @BeforeEach
     void setUp() {
         User dummySeller = new User(1, "Jane", "Smith", "test.seller@email.com", "password", Role.SELLER, false, false);
-        dummyCustomer = new User(2, "John", "Smith", "test@email.com", "password", Role.CUSTOMER, false, false);
-        product = new Product("Soap", "Mild soap for delicate skin. 200mL", 2.25f, 10, dummySeller);
+        dummyCustomer = new User(2, "John", "Smith", "test.buyer@email.com", "password", Role.CUSTOMER, false, false);
 
+        userRepository.save(dummySeller);
         userRepository.save(dummyCustomer);
-        float totalPrice = 20.3f;
-//        order = new Order(dummyCustomer,totalPrice, OrderStatus.PROCESSING);
-        order = new Order(dummyCustomer, Set.of(new Cart(10,product, dummyCustomer)), OrderStatus.PROCESSING);
+
+        unitPrice = 2.25f;
+        quantity = 10;
+
+        product = new Product("Soap", "Mild soap for delicate skin. 200mL", unitPrice, 10, dummySeller);
+        productRepository.save(product);
+
+        order = new Order(dummyCustomer, Set.of(new CartItem(quantity,product, dummyCustomer)), OrderStatus.PROCESSING);
     }
 
     @Test
@@ -48,5 +55,6 @@ class OrderRepositoryTest {
         assertThat(savedOrder.getDate()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.MINUTES));
         assertEquals(OrderStatus.PROCESSING, savedOrder.getStatus());
         assertFalse(savedOrder.isArchived());
+        assertEquals(unitPrice * quantity, savedOrder.getTotalPrice());
     }
 }

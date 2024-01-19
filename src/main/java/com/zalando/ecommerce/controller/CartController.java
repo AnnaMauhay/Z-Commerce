@@ -67,8 +67,8 @@ public class CartController {
                                             @PathVariable("product-id") int productId){
         try {
             User user = userService.getUserByEmail(principal.getUsername());
-            return ResponseEntity.ok(cartService.removeProductFromCart(productId, user));
-        } catch (UserNotFoundException | ProductNotFoundException | StockLimitExceededException e) {
+            return ResponseEntity.ok(cartService.releaseProductFromCart(productId, user));
+        } catch (UserNotFoundException | ProductNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                     .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
         }

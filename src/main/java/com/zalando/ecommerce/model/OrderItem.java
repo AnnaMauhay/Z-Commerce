@@ -31,5 +31,6 @@ public class OrderItem {
         this.id=new OrderItemKey(product.getProductId(), order.getOrderId());
         this.quantity = quantity;
         this.product = product;
+        this.purchaseOrder=order;
     }
 }
