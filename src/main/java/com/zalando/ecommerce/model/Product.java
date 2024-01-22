@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Setter @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,7 +28,7 @@ public class Product {
     private String description;
 
     @Column
-    private Float price;
+    private BigDecimal price;
 
     @Column(name = "stock_quantity")
     private int stockQuantity;
@@ -38,10 +41,10 @@ public class Product {
     @JoinColumn(name = "seller_id")
     private User seller;
 
-    public Product(String productName, String description, Float price, int stockQuantity, User seller) {
+    public Product(String productName, String description, Float floatPrice, int stockQuantity, User seller) {
         this.productName = productName;
         this.description = description;
-        this.price = price;
+        this.price = BigDecimal.valueOf(floatPrice).setScale(3, RoundingMode.HALF_UP);
         this.stockQuantity = stockQuantity;
         this.seller = seller;
     }

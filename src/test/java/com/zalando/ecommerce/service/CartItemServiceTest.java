@@ -19,6 +19,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,14 +46,14 @@ class CartItemServiceTest {
     private CartRequest cartRequest;
     private User user;
     private int quantity;
-    private float price;
+    private BigDecimal price;
     private int productId;
     private Product product;
 
     @BeforeEach
     void setUp() {
         quantity = 10;
-        price = 4f;
+        price = BigDecimal.valueOf(4).setScale(3, RoundingMode.HALF_UP);
         productId = 1;
 
         user = new User(1, "Customer1", "CustomerLastName", "customer@email.com",
@@ -75,7 +77,7 @@ class CartItemServiceTest {
         System.out.println(cartResponse);
         assertThat(cartResponse).isNotNull();
         assertThat(cartResponse.getCart()).isNotEmpty();
-        assertEquals(quantity * price, cartResponse.getTotalPrice());
+        assertEquals(price.multiply(BigDecimal.valueOf(quantity)), cartResponse.getTotalPrice());
     }
 
     @SneakyThrows
@@ -101,7 +103,7 @@ class CartItemServiceTest {
         System.out.println(cartResponse);
         assertThat(cartResponse).isNotNull();
         assertThat(cartResponse.getCart()).isEmpty();
-        assertEquals(0f, cartResponse.getTotalPrice());
+        assertEquals(BigDecimal.ZERO.setScale(3), cartResponse.getTotalPrice());
     }
 
     @SneakyThrows
