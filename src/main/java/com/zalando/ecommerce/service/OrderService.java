@@ -8,8 +8,11 @@ import com.zalando.ecommerce.repository.OrderItemRepository;
 import com.zalando.ecommerce.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -66,4 +69,8 @@ public class OrderService {
         }
     }
 
+    public Page<Order> getOrdersByStatus(User user, OrderStatus orderStatus, int pageNum, int size) {
+        PageRequest request = PageRequest.of(pageNum, size);
+        return orderRepository.getOrdersByCustomerAndStatus(user, orderStatus, request);
+    }
 }

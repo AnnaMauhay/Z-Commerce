@@ -4,8 +4,7 @@ import com.zalando.ecommerce.exception.EmptyCartException;
 import com.zalando.ecommerce.exception.InsufficientStockException;
 import com.zalando.ecommerce.exception.OrderNotFoundException;
 import com.zalando.ecommerce.exception.UserNotFoundException;
-import com.zalando.ecommerce.model.ErrorResponse;
-import com.zalando.ecommerce.model.Order;
+import com.zalando.ecommerce.model.*;
 import com.zalando.ecommerce.service.OrderService;
 import com.zalando.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -57,5 +53,21 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                     .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
         }
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    public ResponseEntity<?> getOrders(@RequestParam("status") OrderStatus status,
+                                                 @RequestParam("page") int pageCtr,
+                                                 @RequestParam("size") int size,
+                                                 @AuthenticationPrincipal UserDetails principal){
+        User user;
+        try {
+            user = userService.getUserByEmail(principal.getUsername());
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                    .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
+        }
+        return ResponseEntity.ok(orderService.getOrdersByStatus(user, status, pageCtr, size));
     }
 }
