@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 @Service
@@ -55,7 +57,7 @@ public class ProductService {
             Product product = foundProduct.get();
             product.setProductName(productRequest.getProductName());
             product.setDescription(productRequest.getDescription());
-            product.setPrice(productRequest.getPrice());
+            product.setPrice(BigDecimal.valueOf(productRequest.getPrice()).setScale(3, RoundingMode.HALF_UP));
             product.setStockQuantity(productRequest.getStockQty());
             return productRepository.save(product);
         }else throw new ProductNotFoundException("No active product matched the given ID for this seller.");

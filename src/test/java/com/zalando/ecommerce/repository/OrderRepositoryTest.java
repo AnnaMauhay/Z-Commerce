@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
@@ -55,6 +57,6 @@ class OrderRepositoryTest {
         assertThat(savedOrder.getDate()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.MINUTES));
         assertEquals(OrderStatus.PROCESSING, savedOrder.getStatus());
         assertFalse(savedOrder.isArchived());
-        assertEquals(unitPrice * quantity, savedOrder.getTotalPrice());
+        assertEquals(BigDecimal.valueOf(unitPrice).setScale(3, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(quantity)), savedOrder.getTotalPrice());
     }
 }

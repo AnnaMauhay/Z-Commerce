@@ -2,6 +2,7 @@ package com.zalando.ecommerce.service;
 
 import com.zalando.ecommerce.exception.EmptyCartException;
 import com.zalando.ecommerce.exception.InsufficientStockException;
+import com.zalando.ecommerce.exception.OrderNotFoundException;
 import com.zalando.ecommerce.model.*;
 import com.zalando.ecommerce.repository.OrderItemRepository;
 import com.zalando.ecommerce.repository.OrderRepository;
@@ -9,6 +10,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,9 +33,9 @@ public class OrderService {
         reduceProductsStockQuantities(cartItemSet);
 
         Order createdOrder = orderRepository.save(new Order(user, cartItemSet, OrderStatus.PROCESSING));
-        createOrderItemsFromCart(cartItemSet, createdOrder);
+        createdOrder.setOrderItems(createOrderItemsFromCart(cartItemSet, createdOrder));
         cartService.deletePurchasedCartItems(user);
-        return orderRepository.getReferenceById(createdOrder.getOrderId());
+        return orderRepository.save(createdOrder);
     }
 
     private void reduceProductsStockQuantities(Set<CartItem> cartItemSet) throws InsufficientStockException {
@@ -47,11 +50,20 @@ public class OrderService {
         }
     }
 
-    private void createOrderItemsFromCart(Set<CartItem> cartItemSet, Order order) {
+    private List<OrderItem> createOrderItemsFromCart(Set<CartItem> cartItemSet, Order order) {
         Set<OrderItem> orderItemSet = cartItemSet.stream().map(cart -> {
             return new OrderItem(cart.getQuantity(), cart.getProduct(), order);
         }).collect(Collectors.toSet());
-        orderItemRepository.saveAll(orderItemSet);
+        return orderItemRepository.saveAll(orderItemSet);
+    }
+
+    public Order getOrderByUserAndId(User user, int orderId) throws OrderNotFoundException {
+        Optional<Order> order = orderRepository.getOrderByCustomerAndOrderId(user, orderId);
+        if (order.isPresent()){
+            return order.get();
+        }else {
+            throw new OrderNotFoundException("No order matched the given order ID for this customer.");
+        }
     }
 
 }
