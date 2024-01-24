@@ -1,5 +1,6 @@
 package com.zalando.ecommerce.controller;
 
+import com.zalando.ecommerce.dto.OrderUpdateRequest;
 import com.zalando.ecommerce.exception.EmptyCartException;
 import com.zalando.ecommerce.exception.InsufficientStockException;
 import com.zalando.ecommerce.exception.OrderNotFoundException;
@@ -14,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -69,5 +71,21 @@ public class OrderController {
                     .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
         }
         return ResponseEntity.ok(orderService.getOrdersByStatus(user, status, pageCtr, size));
+    }
+
+    @PutMapping("/{order-id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<?> updateOrder(@AuthenticationPrincipal UserDetails principal,
+                                        @PathVariable("order-id") int orderId,
+                                        @Validated @RequestBody OrderUpdateRequest updateRequest){
+        User user;
+        try {
+            user = userService.getUserByEmail(principal.getUsername());
+            Order order = orderService.updateOrderStatus(user,orderId, updateRequest);
+            return ResponseEntity.ok(order);
+        } catch (UserNotFoundException | OrderNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                    .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
+        }
     }
 }
