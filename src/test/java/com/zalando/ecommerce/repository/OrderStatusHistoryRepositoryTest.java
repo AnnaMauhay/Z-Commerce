@@ -52,7 +52,7 @@ class OrderStatusHistoryRepositoryTest {
         OrderStatus newStatus = OrderStatus.SHIPPED;
 
         OrderStatusHistory history = orderStatusHistoryRepository.save(new OrderStatusHistory(oldStatus, newStatus, dummyAdmin, order));
-        assertNotEquals(0, history.getId());
+        assertNotEquals(0, history.getHistoryId());
         assertThat(history.getDateModified()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.MINUTES));
         assertEquals(OrderStatus.PROCESSING, history.getOldStatus());
         assertEquals(OrderStatus.SHIPPED, history.getNewStatus());

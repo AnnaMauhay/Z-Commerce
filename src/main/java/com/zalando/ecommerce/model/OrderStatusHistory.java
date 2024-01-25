@@ -15,9 +15,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderStatusHistory {
-    @JsonIgnore
-    @EmbeddedId
-    private OrderStatusHistoryKey id;
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    private int historyId;
 
     @Column(name = "old_status")
     @Enumerated
@@ -33,18 +32,15 @@ public class OrderStatusHistory {
 
     @JsonIgnore
     @ManyToOne
-    @MapsId("modifierId")
     @JoinColumn(name = "modifier_id")
     private User modifier;
 
     @ManyToOne
-    @MapsId("orderId")
     @JoinColumn(name = "order_id")
     private Order order;
 
     public OrderStatusHistory(OrderStatus oldStatus, OrderStatus newStatus,
                               User modifier, Order order) {
-        this.id = new OrderStatusHistoryKey(modifier.getUserId(), order.getOrderId());
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
         this.dateModified = LocalDateTime.now();
