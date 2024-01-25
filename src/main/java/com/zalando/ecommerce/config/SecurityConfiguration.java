@@ -45,29 +45,43 @@ public class SecurityConfiguration {
         http
                 .authorizeHttpRequests(auth -> {
                             auth
-                                    .requestMatchers("/*/register", "/*/login", "/*/error")
+                                    .requestMatchers("/*/register","/*/login","/*/error")
                                     .permitAll();
                             auth
-                                    .requestMatchers(HttpMethod.POST, "/*/product")
+                                    .requestMatchers(
+                                            "/*/api-docs",
+                                            "/*/api-docs/**",
+                                            "/swagger-resources",
+                                            "/swagger-resources/**",
+                                            "/configuration/ui",
+                                            "/configuration/security",
+                                            "/swagger-ui/**",
+                                            "/swagger-ui/index.html")
+                                    .permitAll();
+                            auth
+                                    .requestMatchers(HttpMethod.GET, "/products", "/products/**")
+                                    .permitAll();
+                            auth
+                                    .requestMatchers(HttpMethod.POST, "/products")
                                     .hasRole(Role.SELLER.name())
 
-                                    .requestMatchers(HttpMethod.PUT, "/*/product/*")
+                                    .requestMatchers(HttpMethod.PUT, "/products/**")
                                     .hasRole(Role.SELLER.name())
 
-                                    .requestMatchers(HttpMethod.DELETE, "/*/product/*")
+                                    .requestMatchers(HttpMethod.DELETE, "/products/**")
                                     .hasRole(Role.SELLER.name());
                             auth
-                                    .requestMatchers(HttpMethod.GET, "/*/carts")
+                                    .requestMatchers(HttpMethod.GET, "/carts")
                                     .hasRole(Role.CUSTOMER.name())
 
-                                    .requestMatchers(HttpMethod.POST, "/*/carts")
+                                    .requestMatchers(HttpMethod.POST, "/carts")
                                     .hasRole(Role.CUSTOMER.name())
 
-                                    .requestMatchers(HttpMethod.PUT, "/*/carts")
+                                    .requestMatchers(HttpMethod.PUT, "/carts/**")
                                     .hasRole(Role.CUSTOMER.name())
 
-                                    .requestMatchers(HttpMethod.DELETE, "/*/carts/*")
-                                    .hasRole(Role.CUSTOMER.name());;
+                                    .requestMatchers(HttpMethod.DELETE, "/carts/**")
+                                    .hasRole(Role.CUSTOMER.name());
 
                             auth
                                     .anyRequest()
