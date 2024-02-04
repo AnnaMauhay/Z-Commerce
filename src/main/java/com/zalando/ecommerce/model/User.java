@@ -3,11 +3,17 @@ package com.zalando.ecommerce.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.stereotype.Component;
 
 @Entity
 @Table(name = "user")
-@Setter @Getter @NoArgsConstructor @AllArgsConstructor
-@ToString @EqualsAndHashCode
+@Setter @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
+@Builder
+@Component
 public class User {
 
     @Id @Column(name = "user_id")

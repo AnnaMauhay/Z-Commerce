@@ -23,5 +23,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
      */
     Optional<Product> getProductByProductNameContainingIgnoreCaseAndSeller(String productName, User user);
     Optional<Product> getProductByProductIdAndSellerAndArchived(Integer productId, User user, Boolean archived);
+    Product getProductByProductIdAndSeller(Integer productId, User seller);
     List<Product> getAllBySellerAndArchivedIsFalse(User user);
 }
