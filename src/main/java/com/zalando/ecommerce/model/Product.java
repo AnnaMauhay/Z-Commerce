@@ -12,6 +12,7 @@ import java.math.RoundingMode;
 @AllArgsConstructor
 @Entity
 @Table(name = "product")
+@Builder
 public class Product {
     @JsonIgnore
     @Transient

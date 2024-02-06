@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -66,16 +65,17 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('SELLER')")
     @Operation(summary = "Add a new product.", description = "This allows users with SELLER role to create a new product. The product name should be unique for every user.", security = { @SecurityRequirement(name = "bearer-key") })
     public ResponseEntity<?> addNewProduct(@Validated @RequestBody ProductRequest productRequest,
-                                           @AuthenticationPrincipal UserDetails principal){
+                                           @AuthenticationPrincipal(expression = "username") String email){
         User user;
         Product product;
         try {
-            user = userService.getUserByEmail(principal.getUsername());
+            user = userService.getUserByEmail(email);
             product = productService.addProduct(productRequest, user);
         } catch (UserNotFoundException | DuplicateProductException e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                     .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
         }
+        System.out.println(product.getProductId());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{product-id}")
                 .buildAndExpand(product.getProductId())
@@ -86,12 +86,12 @@ public class ProductController {
     @PutMapping("/{product-id}")
     @PreAuthorize("hasAnyRole('SELLER')")
     public ResponseEntity<?> updateProduct(@Validated @RequestBody ProductRequest productRequest,
-                                           @AuthenticationPrincipal UserDetails principal,
+                                           @AuthenticationPrincipal(expression = "username") String email,
                                            @PathVariable("product-id") int productId){
         User user;
         Product product;
         try {
-            user = userService.getUserByEmail(principal.getUsername());
+            user = userService.getUserByEmail(email);
             product = productService.updateProductDetails(productId, user, productRequest);
         } catch (UserNotFoundException | ProductNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
@@ -102,12 +102,12 @@ public class ProductController {
 
     @DeleteMapping("/{product-id}")
     @PreAuthorize("hasAnyRole('SELLER')")
-    public ResponseEntity<?> deleteProduct(@AuthenticationPrincipal UserDetails principal,
+    public ResponseEntity<?> deleteProduct(@AuthenticationPrincipal (expression = "username") String email,
                                            @PathVariable("product-id") int productId){
         User user;
         Product product;
         try {
-            user = userService.getUserByEmail(principal.getUsername());
+            user = userService.getUserByEmail(email);
             product = productService.archiveProduct(productId, user);
         } catch (UserNotFoundException | ProductNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)

@@ -4,8 +4,10 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Getter @Setter
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString
+@Builder
 public class ProductRequest {
     @NotNull(message = "Product name cannot be null.")
     @NotEmpty(message = "Product name cannot be empty.")

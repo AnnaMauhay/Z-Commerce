@@ -2,7 +2,6 @@ package com.zalando.ecommerce.config;
 
 import com.zalando.ecommerce.filter.JwtRequestFilter;
 import com.zalando.ecommerce.model.Role;
-import com.zalando.ecommerce.model.UserPermissions;
 import com.zalando.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +14,13 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 @Configuration
 @EnableWebSecurity
@@ -45,7 +46,7 @@ public class SecurityConfiguration {
         http
                 .authorizeHttpRequests(auth -> {
                             auth
-                                    .requestMatchers("/*/register","/*/login","/*/error")
+                                    .requestMatchers("/*/register", "/*/login", "/*/error")
                                     .permitAll();
                             auth
                                     .requestMatchers(
@@ -57,6 +58,9 @@ public class SecurityConfiguration {
                                             "/configuration/security",
                                             "/swagger-ui/**",
                                             "/swagger-ui/index.html")
+                                    .permitAll();
+                            auth
+                                    .requestMatchers(toH2Console())
                                     .permitAll();
                             auth
                                     .requestMatchers(HttpMethod.GET, "/products", "/products/**")
@@ -90,6 +94,7 @@ public class SecurityConfiguration {
                 )
                 .csrf(CsrfConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
