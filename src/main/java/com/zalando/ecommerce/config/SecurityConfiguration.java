@@ -1,6 +1,7 @@
 package com.zalando.ecommerce.config;
 
 import com.zalando.ecommerce.filter.JwtRequestFilter;
+import com.zalando.ecommerce.filter.RequestLoggingFilter;
 import com.zalando.ecommerce.model.Role;
 import com.zalando.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class SecurityConfiguration {
     private final AuthenticationConfiguration authConfiguration;
     private final UserService userService;
     private final JwtRequestFilter jwtRequestFilter;
-    private final CommonsRequestLoggingFilter logFilter;
+    private final RequestLoggingFilter logFilter;
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
@@ -96,7 +97,7 @@ public class SecurityConfiguration {
                 .csrf(CsrfConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(logFilter, JwtRequestFilter.class);
+                .addFilterAfter(logFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
     @Bean

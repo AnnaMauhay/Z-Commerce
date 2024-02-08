@@ -49,15 +49,12 @@ class ProductControllerTest {
     private UserRepository userRepository;
     @Autowired
     private ProductRepository productRepository;
-    @Autowired
-    private CommonsRequestLoggingFilter loggingFilter;
 
     @BeforeEach
     void setUp() {
         this.mockMvc = MockMvcBuilders
                 .webAppContextSetup(applicationContext)
                 .apply(springSecurity())
-                .addFilter(loggingFilter, "/*")
                 .build();
     }
 
