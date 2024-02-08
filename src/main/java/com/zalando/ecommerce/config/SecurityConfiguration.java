@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
@@ -31,6 +32,7 @@ public class SecurityConfiguration {
     private final AuthenticationConfiguration authConfiguration;
     private final UserService userService;
     private final JwtRequestFilter jwtRequestFilter;
+    private final CommonsRequestLoggingFilter logFilter;
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
@@ -93,7 +95,8 @@ public class SecurityConfiguration {
                 )
                 .csrf(CsrfConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(logFilter, JwtRequestFilter.class);
         return http.build();
     }
     @Bean
