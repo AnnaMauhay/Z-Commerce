@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -42,6 +43,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    @Order(1)
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> {
@@ -58,9 +60,6 @@ public class SecurityConfiguration {
                                             "/configuration/security",
                                             "/swagger-ui/**",
                                             "/swagger-ui/index.html")
-                                    .permitAll();
-                            auth
-                                    .requestMatchers(toH2Console())
                                     .permitAll();
                             auth
                                     .requestMatchers(HttpMethod.GET, "/products", "/products/**")
@@ -94,10 +93,18 @@ public class SecurityConfiguration {
                 )
                 .csrf(CsrfConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
+    @Bean
+    @Order(2)
+    SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher(toH2Console())
+                .authorizeHttpRequests( auth -> auth.requestMatchers(toH2Console()).permitAll())
+                .csrf(csrf -> csrf.ignoringRequestMatchers(toH2Console()))
+                .headers(AbstractHttpConfigurer::disable)
+                .build();
+    }
 
 }

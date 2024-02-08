@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  ecommerce_container:
+    image: liza-mauhay/zalando-ecommerce-springboot:1.0.0-SNAPSHOT
+    container_name: ecommerce_container
+    ports:
+      - 8081:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_container:3306/ZalandoDB?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: zalandoDocker
+      SPRING_DATASOURCE_PASSWORD: zalandoDockerPass
+    depends_on:
+      - mysql_container
+    networks:
+      ecommerce-mysql-net:
+
+  mysql_container:
+    image: mysql:8.1.0
+    container_name: mysql_container
+    environment:
+      DATABASE_HOST: docker-mysql
+      DATABASE_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootPass
+      MYSQL_DATABASE: ZalandoDB
+      MYSQL_USER: zalandoDocker
+      MYSQL_PASSWORD: zalandoDockerPass
+    ports:
+      - 3306:3306
+    networks:
+      ecommerce-mysql-net:
+
+networks:
+  ecommerce-mysql-net:
+    driver: bridge
