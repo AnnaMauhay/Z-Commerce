@@ -1,5 +1,6 @@
 package com.zalando.ecommerce.config;
 
+import com.zalando.ecommerce.filter.ApiKeyAuthFilter;
 import com.zalando.ecommerce.filter.JwtRequestFilter;
 import com.zalando.ecommerce.filter.RequestLoggingFilter;
 import com.zalando.ecommerce.model.Role;
@@ -21,7 +22,6 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
@@ -34,6 +34,7 @@ public class SecurityConfiguration {
     private final UserService userService;
     private final JwtRequestFilter jwtRequestFilter;
     private final RequestLoggingFilter logFilter;
+    private final ApiKeyAuthFilter apiKeyFilter;
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
@@ -63,6 +64,9 @@ public class SecurityConfiguration {
                                             "/configuration/security",
                                             "/swagger-ui/**",
                                             "/swagger-ui/index.html")
+                                    .permitAll();
+                            auth
+                                    .requestMatchers("/h2-console/**")
                                     .permitAll();
                             auth
                                     .requestMatchers(HttpMethod.GET, "/products", "/products/**")
@@ -96,19 +100,10 @@ public class SecurityConfiguration {
                 )
                 .csrf(CsrfConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(apiKeyFilter, JwtRequestFilter.class)
                 .addFilterAfter(logFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-    @Bean
-    @Order(2)
-    SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .securityMatcher(toH2Console())
-                .authorizeHttpRequests( auth -> auth.requestMatchers(toH2Console()).permitAll())
-                .csrf(csrf -> csrf.ignoringRequestMatchers(toH2Console()))
-                .headers(AbstractHttpConfigurer::disable)
-                .build();
-    }
-
 }

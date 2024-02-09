@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -18,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * This activates the 'test' and 'h2' profiles.
  * Sample data is populated through the SampleProductLoader class (which is a CommandLineRunner).
  * SampleProductLoader is run before TestDispatcherServlet is initialised.
+ * Configure the api.key in the application-test.properties
  *
  * @Author Anna Liza Mauhay
  */
@@ -49,6 +50,8 @@ class ProductControllerTest {
     private UserRepository userRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Value("${api.key}")
+    private String apiKeyValue;
 
     @BeforeEach
     void setUp() {
@@ -65,11 +68,25 @@ class ProductControllerTest {
                         .get("/products")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-KEY", apiKeyValue)
                         .param("page", String.valueOf(0))
                         .param("size", String.valueOf(10)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.empty").value(false));
+    }
+
+    @SneakyThrows
+    @Test
+    void missingApiKeyAndSecret_testGetAllProducts_returnUnauthorized() {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/products")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(10)))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
     }
 
     @SneakyThrows
@@ -90,6 +107,7 @@ class ProductControllerTest {
                         .get("/products/search")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-KEY", apiKeyValue)
                         .param("keyword", "Gentle Soap")
                         .param("page", String.valueOf(0))
                         .param("size", String.valueOf(5)))
@@ -105,6 +123,7 @@ class ProductControllerTest {
                         .get("/products/search")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-KEY", apiKeyValue)
                         .param("keyword", "dfhgjkhafd")
                         .param("page", String.valueOf(0))
                         .param("size", String.valueOf(5)))
@@ -131,7 +150,8 @@ class ProductControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/products/" + product.getProductId())
                         .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-KEY", apiKeyValue))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.productId").isNotEmpty());
@@ -143,7 +163,8 @@ class ProductControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/products/" + 0)
                         .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-KEY", apiKeyValue))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -158,6 +179,7 @@ class ProductControllerTest {
                         .post("/products")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-KEY", apiKeyValue)
                         .content("""
                                 {
                                     "productName": "All new Bacon",
@@ -181,6 +203,7 @@ class ProductControllerTest {
                         .post("/products")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-KEY", apiKeyValue)
                         .content("""
                                 {
                                     "productName": "All new Bacon",
@@ -211,6 +234,7 @@ class ProductControllerTest {
                             .post("/products")
                             .accept(MediaType.APPLICATION_JSON)
                             .contentType(MediaType.APPLICATION_JSON)
+                            .header("X-API-KEY", apiKeyValue)
                             .content("""
                                     {
                                         "productName": "Smoked Salmon",
@@ -243,6 +267,7 @@ class ProductControllerTest {
                             .put("/products/" + existingProduct.getProductId())
                             .accept(MediaType.APPLICATION_JSON)
                             .contentType(MediaType.APPLICATION_JSON)
+                            .header("X-API-KEY", apiKeyValue)
                             .content("""
                                     {
                                         "productName": "Updated Product",
@@ -266,6 +291,7 @@ class ProductControllerTest {
                         .put("/products/" + 0)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-KEY", apiKeyValue)
                         .content("""
                                 {
                                     "productName": "Updated Product",
@@ -296,7 +322,8 @@ class ProductControllerTest {
             mockMvc.perform(MockMvcRequestBuilders
                             .delete("/products/" + existingProduct.getProductId())
                             .accept(MediaType.APPLICATION_JSON)
-                            .contentType(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("X-API-KEY", apiKeyValue))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.archived").value(true));
@@ -322,7 +349,8 @@ class ProductControllerTest {
             mockMvc.perform(MockMvcRequestBuilders
                             .delete("/products/" + existingProduct.getProductId())
                             .accept(MediaType.APPLICATION_JSON)
-                            .contentType(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("X-API-KEY", apiKeyValue))
                     .andDo(print())
                     .andExpect(status().isNotAcceptable());
         }
