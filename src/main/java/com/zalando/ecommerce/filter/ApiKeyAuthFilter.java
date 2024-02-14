@@ -49,7 +49,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                 "/configuration/ui",
                 "/configuration/security",
                 "/swagger-ui",
-                "/h2-console");
+                "/h2-console",
+                "/welcome");
 
         for (String item : pathList) {
             if (path.contains(item)) {
