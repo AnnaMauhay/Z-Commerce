@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles(profiles = {"test", "h2"})
+@ActiveProfiles(profiles = {"test", "h2", "jwt"})
 class ProductControllerTest {
     @Autowired
     private WebApplicationContext applicationContext;

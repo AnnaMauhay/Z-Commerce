@@ -33,9 +33,11 @@ build/
 .vscode/
 
 ### E-commerce ###
+.run/
 .idea/
 *.class
 *.jar
 *.sql
 SampleCartLoader.java
 SampleOrderLoader.java
+application-jwt.properties
