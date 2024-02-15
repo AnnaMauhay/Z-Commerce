@@ -12,17 +12,17 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 class JwtUtilTest {
-
     private JwtUtil jwtUtil;
     private String email;
-    private String ISSUER;
+    private String ISSUER = "Test_Issuer";
+    private String SECRET_KEY = "Test_Secret_Key";
     @BeforeEach
     void setUp() {
         jwtUtil = new JwtUtil();
+        jwtUtil.setSECRET_KEY(SECRET_KEY);
+        jwtUtil.setISSUER(ISSUER);
         email = "test@email.com";
-        ISSUER="LIZA_BY_STARTSTEPS_IN_COLLAB_WITH_ZALANDO";
     }
 
     @AfterEach
