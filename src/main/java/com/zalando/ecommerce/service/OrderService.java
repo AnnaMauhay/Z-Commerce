@@ -1,6 +1,7 @@
 package com.zalando.ecommerce.service;
 
 import com.zalando.ecommerce.dto.OrderUpdateRequest;
+import com.zalando.ecommerce.event.OrderStatusEvent;
 import com.zalando.ecommerce.exception.EmptyCartException;
 import com.zalando.ecommerce.exception.InsufficientStockException;
 import com.zalando.ecommerce.exception.OrderNotFoundException;
@@ -87,7 +88,7 @@ public class OrderService {
             order.setStatus(updateRequest.getStatus());
             orderStatusHistoryRepository.save(history);
 
-            eventPublisher.publishEvent(new OrderStatusNotification(this, history));
+            eventPublisher.publishEvent(new OrderStatusEvent(this, history));
             return orderRepository.save(order);
         }else throw new OrderNotFoundException("No order matched the provided ID.");
 

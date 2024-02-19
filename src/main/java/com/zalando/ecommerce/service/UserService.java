@@ -2,11 +2,13 @@ package com.zalando.ecommerce.service;
 
 import com.zalando.ecommerce.dto.UserRegistrationRequest;
 import com.zalando.ecommerce.dto.UserRegistrationResponse;
+import com.zalando.ecommerce.event.UserRegistrationEvent;
 import com.zalando.ecommerce.exception.DuplicateUserException;
 import com.zalando.ecommerce.exception.UserNotFoundException;
 import com.zalando.ecommerce.model.User;
 import com.zalando.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +22,7 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
     public User getUserByEmail(String email) throws UserNotFoundException {
         Optional<User> optionalUser = userRepository.getUserByEmail(email);
@@ -45,6 +48,8 @@ public class UserService implements UserDetailsService {
         user.setRole(request.getRole());
         User savedUser = userRepository.save(user);
 
+        eventPublisher.publishEvent(new UserRegistrationEvent(this, savedUser));
+
         return new UserRegistrationResponse(
                 savedUser.getUserId(),
                 savedUser.getFirstName(),
@@ -58,5 +63,10 @@ public class UserService implements UserDetailsService {
         User appUser = userRepository.getUserByEmail(username).get();
         return new org.springframework.security.core.userdetails.User(
                 appUser.getEmail(), appUser.getPassword(), appUser.getRole().getGrantedAuthorities());
+    }
+
+    public User verifyUser(User user){
+        user.setVerified(true);
+        return userRepository.save(user);
     }
 }
