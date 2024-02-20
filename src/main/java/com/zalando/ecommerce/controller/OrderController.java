@@ -8,6 +8,9 @@ import com.zalando.ecommerce.exception.UserNotFoundException;
 import com.zalando.ecommerce.model.*;
 import com.zalando.ecommerce.service.OrderService;
 import com.zalando.ecommerce.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +27,14 @@ import java.net.URI;
 @Controller
 @RequestMapping("/orders")
 @RequiredArgsConstructor
+@Tag(name = "Order", description = "Order management APIs")
 public class OrderController {
     private final OrderService orderService;
     private final UserService userService;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('CUSTOMER')")
+    @Operation(summary = "Create an order for the authenticated customer.", description = "Returns a new order from the customer's cart. Cart is emptied once an orders is placed.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> createOrder(@AuthenticationPrincipal UserDetails principal){
         Order order = null;
         try {
@@ -47,6 +52,7 @@ public class OrderController {
 
     @GetMapping("/{order-id}")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
+    @Operation(summary = "Get order given an order id.", description = "Returns the authenticated customer's order.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> getOrder(@AuthenticationPrincipal UserDetails principal,
                                       @PathVariable("order-id") int orderId) {
         try {
@@ -59,6 +65,7 @@ public class OrderController {
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
+    @Operation(summary = "Get orders based on the order status.", description = "Returns the authenticated customer's orders in paginated view based on the input order status.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> getOrders(@RequestParam("status") OrderStatus status,
                                                  @RequestParam("page") int pageCtr,
                                                  @RequestParam("size") int size,
@@ -75,6 +82,7 @@ public class OrderController {
 
     @PutMapping("/{order-id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(summary = "Update the order status.", description = "Updates on order status ca only be accessed by an admin user. Returns the order details.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> updateOrder(@AuthenticationPrincipal UserDetails principal,
                                         @PathVariable("order-id") int orderId,
                                         @Validated @RequestBody OrderUpdateRequest updateRequest){
