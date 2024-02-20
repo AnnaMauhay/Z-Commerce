@@ -53,6 +53,12 @@ paths:
                 $ref: '#/components/schemas/UserRegistrationResponse'
             text/xml:
               schema: {}
+        '406':
+          description: NOT ACCEPTABLE - Duplicate User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /users/login:
     post:
       tags:
@@ -73,6 +79,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/AuthenticationResponse'
+        '401':
+          description: UNAUTHORIZED - Invalid username or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /users/verify-email:
     post:
       tags:
@@ -93,6 +105,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        '406':
+          description: NOT ACCEPTABLE - Invalid Email Verification Token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /products:
     get:
       tags:
@@ -133,11 +151,18 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       responses:
-        '200':
-          description: OK
+        '201':
+          description: CREATED
           content:
-            '*/*':
-              schema: {}
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '406':
+          description: NOT ACCEPTABLE - Duplicate Product Exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearerAuth: []
   /products/search:
@@ -193,6 +218,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
+        '404':
+          description: NOT FOUND - Product Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     put:
       tags:
         - Product
@@ -219,7 +250,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
-        '406':
+        '404':
           description: UserNotFoundException or ProductNotFoundException
           content:
             application/json:
@@ -247,6 +278,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
+        '404':
+          description: UserNotFoundException or ProductNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       security:
@@ -307,6 +344,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/CartResponse'
+        '406':
+          description: NOT ACCEPTABLE - Insufficient Stock or Duplicate Product or Product Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearerAuth: []
   /carts/{product-id}:
@@ -330,6 +373,12 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/CartResponse'
+        '406':
+          description: NOT ACCEPTABLE - Insufficient Stock or Stock Limit Exceeded or Product Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearerAuth: []
   /orders:
@@ -340,12 +389,18 @@ paths:
       description: Returns a new order from the customer's cart. Cart is emptied once an orders is placed.
       operationId: createOrder
       responses:
-        '200':
-          description: OK
+        '201':
+          description: CREATED
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+        '406':
+          description: NOT ACCEPTABLE - Empty Cart or Insufficient Stock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearerAuth: []
   /orders/search:
@@ -407,6 +462,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+        '404':
+          description: UserNotFoundException or OrderNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearerAuth: [ ]
     put:
@@ -435,6 +496,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+        '404':
+          description: UserNotFoundException or OrderNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - bearerAuth: [ ]
 components:

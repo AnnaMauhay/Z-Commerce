@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller("/users")
-@RequestMapping//("/users")
+@Controller
+@RequestMapping("/users")
 @Tag(name = "User", description = "User management APIs")
 @RequiredArgsConstructor
 public class UserController {

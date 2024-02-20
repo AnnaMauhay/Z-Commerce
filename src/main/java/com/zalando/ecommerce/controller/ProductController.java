@@ -95,8 +95,8 @@ public class ProductController {
             user = userService.getUserByEmail(email);
             product = productService.updateProductDetails(productId, user, productRequest);
         } catch (UserNotFoundException | ProductNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(HttpStatus.NOT_FOUND, e.getMessage()));
         }
         return ResponseEntity.ok(product);
     }
@@ -112,8 +112,8 @@ public class ProductController {
             user = userService.getUserByEmail(email);
             product = productService.archiveProduct(productId, user);
         } catch (UserNotFoundException | ProductNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(HttpStatus.NOT_FOUND, e.getMessage()));
         }
         return ResponseEntity.ok(product);
     }
