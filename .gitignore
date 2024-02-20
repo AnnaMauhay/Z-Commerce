@@ -38,6 +38,8 @@ build/
 *.class
 *.jar
 *.sql
+*.env
 SampleCartLoader.java
 SampleOrderLoader.java
 application-jwt.properties
+EnvironmentVariablesTest.java
