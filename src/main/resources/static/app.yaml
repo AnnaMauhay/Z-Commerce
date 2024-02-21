@@ -1,0 +1,799 @@
+openapi: 3.1.0
+info:
+  title: Z-Commerce API
+  description: |
+    Z-Commerce is a RESTful API designed as the backbone of your online shopping experience. Deployed on Google Cloud Platform, this API seamlessly manages all aspects from product listings to order fulfillment. Endpoints are rigorously tested through unit and integration tests.
+
+    Z-Commerce caters to three user roles: Customers, Sellers, and Admin, each with tailored permissions and functionalities. The system utilizes APIKeys to deter anonymous calls to the endpoints. Secured endpoints are further protected with JWT authentication.
+
+    For developers, comprehensive documentation using Swagger (OAS 3.1) is available on [SwaggerHub](https://app.swaggerhub.com/apis-docs/MAUHAYANNALIZA/Z-E-Commerce/1.0.0), offering clarity and ease of integration. Additionally, a Postman collection hosted on site1 simplifies API exploration and testing.
+  contact:
+    name: Anna Liza Mauhay
+    email: mauhay.anna.liza@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://soy-envelope-405012.lm.r.appspot.com/api/v1
+    description: Server URL in Production Environment
+  - url: http://localhost:8081/api/v1
+    description: Server URL in Docker Container
+  - url: http://localhost:8080/api/v1
+    description: Server URL in Development Environment
+tags:
+  - name: User
+    description: User management APIs
+  - name: Product
+    description: Product management APIs
+  - name: Cart
+    description: Cart management APIs
+  - name: Order
+    description: Order management APIs
+paths:
+  /users/register:
+    post:
+      tags:
+        - User
+      summary: Register a new user.
+      description: Returns the details of the new user.
+      operationId: registerUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistrationResponse'
+            text/xml:
+              schema: {}
+        '406':
+          description: NOT ACCEPTABLE - Duplicate User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/login:
+    post:
+      tags:
+        - User
+      summary: Authenticate user
+      description: Accepts login credentials and returns a JWT.
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthenticationResponse'
+        '401':
+          description: UNAUTHORIZED - Invalid username or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/verify-email:
+    post:
+      tags:
+        - User
+      summary: Accepts a token received via the user's email
+      description: Returns confirmation of user's verified email.
+      operationId: verifyEmail
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '406':
+          description: NOT ACCEPTABLE - Invalid Email Verification Token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /products:
+    get:
+      tags:
+        - Product
+      summary: Get all active products.
+      description: Returns all active products in paginated view.
+      operationId: getAllProducts
+      parameters:
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageProduct'
+    post:
+      tags:
+        - Product
+      summary: Add a new product.
+      description: This allows users with SELLER role to create a new product. The product name should be unique for every user.
+      operationId: addNewProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '406':
+          description: NOT ACCEPTABLE - Duplicate Product Exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /products/search:
+    get:
+      tags:
+        - Product
+      summary: Search products using a keyword.
+      description: Returns all active products matching the keyword in paginated view. E.g. keywords 'heavy duty' should be written as 'heavy+duty' in the request parameter
+      operationId: getProductsWithName
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageProduct'
+  /products/{product-id}:
+    get:
+      tags:
+        - Product
+      summary: Get the product by Product ID.
+      description: Returns a single product.
+      operationId: getProductById
+      parameters:
+        - name: product-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: NOT FOUND - Product Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Product
+      summary: Update product.
+      description: This allows users with SELLER role to update a product that the Seller created. The product name should be unique for every user.
+      operationId: updateProduct
+      parameters:
+        - name: product-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      responses:
+        '200':
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: UserNotFoundException or ProductNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - Product
+      summary: Delete an existing product.
+      description: This allows users with SELLER role to delete an existing product that the Seller created. The product is archived and will not show up in future product search.
+      operationId: deleteProduct
+      parameters:
+        - name: product-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: UserNotFoundException or ProductNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        - bearerAuth: []
+  /carts:
+    get:
+      tags:
+        - Cart
+      summary: Get cart for the authenticated customer.
+      description: Returns a list of products in the cart and the cart's total price.
+      operationId: getCart
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - Cart
+      summary: Update the product quantity on the authenticated customer's cart.
+      description: Returns a list of products in the cart and the cart's total price.
+      operationId: updateProductInCart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - Cart
+      summary: Add product on the authenticated customer's cart.
+      description: Returns a list of products in the cart and the cart's total price.
+      operationId: addToCart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+        '406':
+          description: NOT ACCEPTABLE - Insufficient Stock or Duplicate Product or Product Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /carts/{product-id}:
+    delete:
+      tags:
+        - Cart
+      summary: Remove the product on the authenticated customer's cart.
+      description: Returns a list of products in the cart and the cart's total price.
+      operationId: removeFromCart
+      parameters:
+        - name: product-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+        '406':
+          description: NOT ACCEPTABLE - Insufficient Stock or Stock Limit Exceeded or Product Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /orders:
+    post:
+      tags:
+        - Order
+      summary: Create an order for the authenticated customer.
+      description: Returns a new order from the customer's cart. Cart is emptied once an orders is placed.
+      operationId: createOrder
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '406':
+          description: NOT ACCEPTABLE - Empty Cart or Insufficient Stock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /orders/search:
+    get:
+      tags:
+        - Order
+      summary: Get orders based on the order status.
+      description: Returns the authenticated customer's orders in paginated view based on the input order status.
+      operationId: getOrders
+      parameters:
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - PROCESSING
+              - SHIPPED
+              - DELIVERED
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageOrder'
+      security:
+        - bearerAuth: [ ]
+  /orders/{order-id}:
+    get:
+      tags:
+        - Order
+      summary: Get order given an order id.
+      description: Returns the authenticated customer's order.
+      operationId: getOrder
+      parameters:
+        - name: order-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: UserNotFoundException or OrderNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: [ ]
+    put:
+      tags:
+        - Order
+      summary: Update the order status.
+      description: Updates on order status ca only be accessed by an admin user. Returns the order details.
+      operationId: updateOrder
+      parameters:
+        - name: order-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: UserNotFoundException or OrderNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: [ ]
+components:
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserRegistrationRequest:
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum:
+            - CUSTOMER
+            - SELLER
+            - ADMIN
+      required:
+        - email
+        - firstName
+        - lastName
+        - password
+        - role
+    UserRegistrationResponse:
+      properties:
+        userId:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+            - CUSTOMER
+            - SELLER
+            - ADMIN
+    AuthenticationResponse:
+      properties:
+        jwt:
+          type: string
+    UserLoginRequest:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+    MessageResponse:
+      properties:
+        message:
+          type: string
+    ProductRequest:
+      properties:
+        productName:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+          maximum: 1000000
+          minimum: 0
+        stockQty:
+          type: integer
+          format: int32
+          maximum: 10000
+          minimum: 0
+      required:
+        - description
+        - productName
+        - stockQty
+    Product:
+      properties:
+        productId:
+          type: integer
+        productName:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+          maximum: 1000000
+          minimum: 0
+        stockQuantity:
+          type: integer
+          format: int32
+          maximum: 10000
+          minimum: 0
+        archived:
+          type: boolean
+      required:
+        - description
+        - productName
+        - stockQty
+    ErrorResponse:
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        statusCode:
+          $ref: '#/components/schemas/HttpStatusCode'
+        body:
+          type: string
+    HttpStatusCode:
+      properties:
+        error:
+          type: boolean
+        is4xxClientError:
+          type: boolean
+        is5xxServerError:
+          type: boolean
+        is1xxInformational:
+          type: boolean
+        is2xxSuccessful:
+          type: boolean
+        is3xxRedirection:
+          type: boolean
+    CartRequest:
+      properties:
+        productId:
+          type: integer
+          format: int32
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+      required:
+        - productId
+        - quantity
+    CartResponse:
+      properties:
+        message:
+          type: string
+        cart:
+          type: array
+          items:
+            type: object
+            properties:
+              quantity:
+                type: integer
+                format: int32
+              product:
+                $ref: '#/components/schemas/Product'
+        totalPrice:
+          type: number
+          format: float
+    OrderUpdateRequest:
+      properties:
+        status:
+          type: string
+          enum:
+            - PROCESSING
+            - SHIPPED
+            - DELIVERED
+      required:
+        - status
+    Order:
+      properties:
+        orderId:
+          type: integer
+          format: int32
+        date:
+          type: string
+          pattern: YYYY-MM-DD hh:mm:ss
+        totalPrice:
+          type: number
+          format: float
+        status:
+          type: string
+          enum:
+            - PROCESSING
+            - SHIPPED
+            - DELIVERED
+        archived:
+          type: boolean
+        orderItems:
+          type: array
+          items:
+            type: object
+            properties:
+              quantity:
+                type: integer
+                format: int32
+              product:
+                $ref: '#/components/schemas/Product'
+    PageOrder:
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        first:
+          type: boolean
+        last:
+          type: boolean
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            type: string
+            format: binary
+        number:
+          type: integer
+          format: int32
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        numberOfElements:
+          type: integer
+          format: int32
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        empty:
+          type: boolean
+    PageProduct:
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        first:
+          type: boolean
+        last:
+          type: boolean
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            type: string
+            format: binary
+        number:
+          type: integer
+          format: int32
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        numberOfElements:
+          type: integer
+          format: int32
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        empty:
+          type: boolean
+    PageableObject:
+      properties:
+        offset:
+          type: integer
+          format: int64
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+    SortObject:
+      properties:
+        empty:
+          type: boolean
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean

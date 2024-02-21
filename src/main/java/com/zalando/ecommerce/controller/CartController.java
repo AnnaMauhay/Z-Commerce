@@ -6,6 +6,9 @@ import com.zalando.ecommerce.model.ErrorResponse;
 import com.zalando.ecommerce.model.User;
 import com.zalando.ecommerce.service.CartService;
 import com.zalando.ecommerce.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +21,14 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/carts")
 @RequiredArgsConstructor
+@Tag(name = "Cart", description = "Cart management APIs")
 public class CartController {
     private final CartService cartService;
     private final UserService userService;
 
     @GetMapping
     @PreAuthorize("hasRole('CUSTOMER')")
+    @Operation(summary = "Get cart for the authenticated customer.", description = "Returns a list of products in the cart and the cart's total price.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> getCart(@AuthenticationPrincipal UserDetails principal){
         try {
             return ResponseEntity.ok(cartService.getCartAndTotal(userService.getUserByEmail(principal.getUsername())));
@@ -35,6 +40,7 @@ public class CartController {
 
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
+    @Operation(summary = "Add product on the authenticated customer's cart.", description = "Returns a list of products in the cart and the cart's total price.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> addToCart(@AuthenticationPrincipal UserDetails principal,
                                        @RequestBody CartRequest cartRequest){
         try {
@@ -49,6 +55,7 @@ public class CartController {
 
     @PutMapping
     @PreAuthorize("hasRole('CUSTOMER')")
+    @Operation(summary = "Update the product quantity on the authenticated customer's cart.", description = "Returns a list of products in the cart and the cart's total price.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> updateProductInCart(@AuthenticationPrincipal UserDetails principal,
                                        @RequestBody CartRequest cartRequest){
         try {
@@ -63,6 +70,7 @@ public class CartController {
 
     @DeleteMapping("/{product-id}")
     @PreAuthorize("hasRole('CUSTOMER')")
+    @Operation(summary = "Remove the product on the authenticated customer's cart.", description = "Returns a list of products in the cart and the cart's total price.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> removeFromCart(@AuthenticationPrincipal UserDetails principal,
                                             @PathVariable("product-id") int productId){
         try {

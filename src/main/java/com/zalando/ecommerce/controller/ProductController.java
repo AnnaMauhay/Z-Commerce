@@ -28,19 +28,18 @@ import java.net.URI;
 @Controller
 @RequestMapping("/products")
 @RequiredArgsConstructor
-@Tag(name = "Products", description = "Product management APIs")
+@Tag(name = "Product", description = "Product management APIs")
 public class ProductController {
     private final ProductService productService;
     private final UserService userService;
 
-    @Operation(summary = "Get all active products.", description = "This returns all active products in paginated view.")
+    @Operation(summary = "Get all active products.", description = "Returns all active products in paginated view.")
     @GetMapping
     public ResponseEntity<Page<Product>> getAllProducts(@RequestParam("page") int pageCtr,
                                                         @RequestParam("size") int size){
         return ResponseEntity.ok(productService.getAllProducts(pageCtr, size));
     }
-
-    @Operation(summary = "Search products using a keyword.", description = "This returns all active products matching the keyword in paginated view. E.g. keywords 'heavy duty' should be written as 'heavy+duty' in the request parameter")
+    @Operation(summary = "Search products using a keyword.", description = "Returns all active products matching the keyword in paginated view. E.g. keywords 'heavy duty' should be written as 'heavy+duty' in the request parameter")
     @GetMapping("/search")
     public ResponseEntity<Page<Product>> getProductsWithName(@RequestParam("keyword") String productName,
                                                              @RequestParam("page") int pageCtr,
@@ -50,8 +49,9 @@ public class ProductController {
         }
         return ResponseEntity.ok(productService.getProductsWithName(productName, pageCtr, size));
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getProductById(@PathVariable("id") int productId){
+    @Operation(summary = "Get the product by Product ID.", description = "Returns a single product.")
+    @GetMapping("/{product-id}")
+    public ResponseEntity<?> getProductById(@PathVariable("product-id") int productId){
         try{
             return ResponseEntity.ok(productService.getProductById(productId));
         }catch (ProductNotFoundException e){
@@ -63,7 +63,7 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('SELLER')")
-    @Operation(summary = "Add a new product.", description = "This allows users with SELLER role to create a new product. The product name should be unique for every user.", security = { @SecurityRequirement(name = "bearer-key") })
+    @Operation(summary = "Add a new product.", description = "This allows users with SELLER role to create a new product. The product name should be unique for every user.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> addNewProduct(@Validated @RequestBody ProductRequest productRequest,
                                            @AuthenticationPrincipal(expression = "username") String email){
         User user;
@@ -85,6 +85,7 @@ public class ProductController {
 
     @PutMapping("/{product-id}")
     @PreAuthorize("hasAnyRole('SELLER')")
+    @Operation(summary = "Update product.", description = "This allows users with SELLER role to update a product that the Seller created. The product name should be unique for every user.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> updateProduct(@Validated @RequestBody ProductRequest productRequest,
                                            @AuthenticationPrincipal(expression = "username") String email,
                                            @PathVariable("product-id") int productId){
@@ -94,14 +95,15 @@ public class ProductController {
             user = userService.getUserByEmail(email);
             product = productService.updateProductDetails(productId, user, productRequest);
         } catch (UserNotFoundException | ProductNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(HttpStatus.NOT_FOUND, e.getMessage()));
         }
         return ResponseEntity.ok(product);
     }
 
     @DeleteMapping("/{product-id}")
     @PreAuthorize("hasAnyRole('SELLER')")
+    @Operation(summary = "Delete an existing product.", description = "This allows users with SELLER role to delete an existing product that the Seller created. The product is archived and will not show up in future product search.", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<?> deleteProduct(@AuthenticationPrincipal (expression = "username") String email,
                                            @PathVariable("product-id") int productId){
         User user;
@@ -110,8 +112,8 @@ public class ProductController {
             user = userService.getUserByEmail(email);
             product = productService.archiveProduct(productId, user);
         } catch (UserNotFoundException | ProductNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body(new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(HttpStatus.NOT_FOUND, e.getMessage()));
         }
         return ResponseEntity.ok(product);
     }
