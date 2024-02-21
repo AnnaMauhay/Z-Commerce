@@ -22,10 +22,8 @@ public class UserRegistrationListener implements ApplicationListener<UserRegistr
     private final Logger logger = LoggerFactory.getLogger(UserRegistrationListener.class);
     @Override
     public void onApplicationEvent(UserRegistrationEvent notification) {
-        User user = notification.getUser();
-        EmailVerificationToken verificationToken = new EmailVerificationToken(RandomStringUtils.random(10, true, true), user);
-        emailTokenService.save(verificationToken);
-        logger.info("User " + user.getEmail() +
+        EmailVerificationToken verificationToken = emailTokenService.generateVerificationToken(notification.getUser());
+        logger.info("User " + notification.getUser().getEmail() +
                 " have registered. Waiting for email verification. "
         + verificationToken.getToken());
     }

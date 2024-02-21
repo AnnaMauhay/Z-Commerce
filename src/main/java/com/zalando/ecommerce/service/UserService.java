@@ -69,4 +69,9 @@ public class UserService implements UserDetailsService {
         user.setVerified(true);
         return userRepository.save(user);
     }
+
+    public boolean isUserVerified(String email) {
+        Optional<User> foundUser = userRepository.getUserByEmail(email);
+        return foundUser.map(User::isVerified).orElse(false);
+    }
 }
