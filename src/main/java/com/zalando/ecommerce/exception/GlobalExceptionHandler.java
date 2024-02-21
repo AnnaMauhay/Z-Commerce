@@ -1,6 +1,7 @@
 package com.zalando.ecommerce.exception;
 
 import com.zalando.ecommerce.model.ErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,14 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException ex) {
+        String message = ex.getMessage();
+        logger.error(message);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(HttpStatus.UNAUTHORIZED, message));
+    }
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<?> handleArgumentTypeMismatchExceptions(MethodArgumentTypeMismatchException ex) {
         String message = ex.getMessage();

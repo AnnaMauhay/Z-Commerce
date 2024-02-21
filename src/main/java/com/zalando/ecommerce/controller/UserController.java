@@ -53,11 +53,16 @@ public class UserController {
                     loginRequest.getEmail(),
                     loginRequest.getPassword()
             ));
-            final String jwt = jwtUtil.generateToken(loginRequest.getEmail());
-
-            return ResponseEntity.ok(new AuthenticationResponse(jwt));
+            if(userService.isUserVerified(loginRequest.getEmail())){
+                final String jwt = jwtUtil.generateToken(loginRequest.getEmail());
+                return ResponseEntity.ok(new AuthenticationResponse(jwt));
+            }else{
+                ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, "Email address is not verified.");
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(errorResponse);
+            }
         }catch (AuthenticationException e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username and/or password.");
+            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid username and/or password.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 

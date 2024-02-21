@@ -286,7 +286,7 @@ class ProductControllerTest {
     @SneakyThrows
     @Test
     @WithMockUser(username = "seller1@email.com", roles = {"SELLER"})
-    void givenNonExistingProduct_testUpdateProduct_returnNotAcceptable() {
+    void givenNonExistingProduct_testUpdateProduct_returnNotFound() {
         mockMvc.perform(MockMvcRequestBuilders
                         .put("/products/" + 0)
                         .accept(MediaType.APPLICATION_JSON)
@@ -301,7 +301,7 @@ class ProductControllerTest {
                                 }
                                 """))
                 .andDo(print())
-                .andExpect(status().isNotAcceptable());
+                .andExpect(status().isNotFound());
     }
 
     @SneakyThrows
@@ -352,7 +352,7 @@ class ProductControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .header("X-API-KEY", apiKeyValue))
                     .andDo(print())
-                    .andExpect(status().isNotAcceptable());
+                    .andExpect(status().isNotFound());
         }
     }
 
