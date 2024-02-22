@@ -22,6 +22,8 @@ servers:
   - url: http://localhost:8080/api/v1
     description: Server URL in Development Environment
 tags:
+  - name: Welcome
+    description: A welcome endpoint
   - name: User
     description: User management APIs
   - name: Product
@@ -31,6 +33,20 @@ tags:
   - name: Order
     description: Order management APIs
 paths:
+  /welcome:
+    get:
+      tags:
+        - Welcome
+      summary: Return a welcome message
+      description: Does not require JWT or API key to access.
+      operationId: welcomeMessage
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
   /users/register:
     post:
       tags:
@@ -76,7 +92,7 @@ paths:
         '200':
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/AuthenticationResponse'
         '401':
@@ -102,7 +118,7 @@ paths:
         '200':
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
         '406':
